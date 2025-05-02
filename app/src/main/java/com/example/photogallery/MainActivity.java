@@ -1,8 +1,11 @@
 package com.example.photogallery;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView albumsRecyclerView;
     private AlbumAdapter albumAdapter;
     private List<Album> albums;
+    private AlbumManager albumManager;
     private static final int CREATE_ALBUM_REQUEST = 1;
 
     @Override
@@ -25,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize albums list (in a real app, this would load from storage)
-        albums = new ArrayList<>();
+        albumManager = AlbumManager.getInstance(this);
+        albums = albumManager.loadAlbums();
         
         // Set up RecyclerView
         albumsRecyclerView = findViewById(R.id.albumsRecyclerView);
@@ -46,12 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up FAB
         FloatingActionButton addAlbumButton = findViewById(R.id.addAlbumButton);
-        addAlbumButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCreateAlbumDialog();
-            }
-        });
+        addAlbumButton.setOnClickListener(v -> showCreateAlbumDialog());
     }
 
     private void openAlbum(Album album) {
@@ -61,22 +60,105 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAlbumOptions(Album album) {
-        // TODO: Implement album options dialog (rename, delete)
+        String[] options = {getString(R.string.rename_album), getString(R.string.delete_album)};
+        new AlertDialog.Builder(this)
+                .setTitle(album.getName())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        showRenameAlbumDialog(album);
+                    } else {
+                        showDeleteAlbumDialog(album);
+                    }
+                })
+                .show();
     }
 
     private void showCreateAlbumDialog() {
-        // TODO: Implement create album dialog
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_album_name, null);
+        EditText albumNameInput = dialogView.findViewById(R.id.albumNameInput);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.create_album)
+                .setView(dialogView)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String albumName = albumNameInput.getText().toString().trim();
+                    if (!albumName.isEmpty()) {
+                        createAlbum(albumName);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showRenameAlbumDialog(Album album) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_album_name, null);
+        EditText albumNameInput = dialogView.findViewById(R.id.albumNameInput);
+        albumNameInput.setText(album.getName());
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.rename_album)
+                .setView(dialogView)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String newName = albumNameInput.getText().toString().trim();
+                    if (!newName.isEmpty()) {
+                        renameAlbum(album, newName);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showDeleteAlbumDialog(Album album) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_album)
+                .setMessage(getString(R.string.confirm_delete_album, album.getName()))
+                .setPositiveButton(R.string.ok, (dialog, which) -> deleteAlbum(album))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void createAlbum(String name) {
+        if (isAlbumNameExists(name)) {
+            Toast.makeText(this, "Album name already exists", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        albums.add(new Album(name));
+        saveAlbums();
+        albumAdapter.notifyDataSetChanged();
+    }
+
+    private void renameAlbum(Album album, String newName) {
+        if (isAlbumNameExists(newName)) {
+            Toast.makeText(this, "Album name already exists", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        album.setName(newName);
+        saveAlbums();
+        albumAdapter.notifyDataSetChanged();
+    }
+
+    private void deleteAlbum(Album album) {
+        albums.remove(album);
+        saveAlbums();
+        albumAdapter.notifyDataSetChanged();
+    }
+
+    private boolean isAlbumNameExists(String name) {
+        for (Album album : albums) {
+            if (album.getName().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void saveAlbums() {
+        albumManager.saveAlbums(albums);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CREATE_ALBUM_REQUEST && resultCode == RESULT_OK) {
-            String albumName = data.getStringExtra("album_name");
-            if (albumName != null && !albumName.isEmpty()) {
-                albums.add(new Album(albumName));
-                albumAdapter.notifyDataSetChanged();
-            }
-        }
+    protected void onPause() {
+        super.onPause();
+        saveAlbums();
     }
 } 
