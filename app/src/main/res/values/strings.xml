@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Photo Gallery</string>
+    <string name="create_album">Create Album</string>
+    <string name="rename_album">Rename Album</string>
+    <string name="delete_album">Delete Album</string>
+    <string name="album_name">Album Name</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="remove_photo">Remove Photo</string>
+    <string name="move_photo">Move Photo</string>
+    <string name="add_tag">Add Tag</string>
+    <string name="remove_tag">Remove Tag</string>
+    <string name="search_photos">Search Photos</string>
+    <string name="person">Person</string>
+    <string name="location">Location</string>
+    <string name="tag_value">Tag Value</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+</resources> 
