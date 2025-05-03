@@ -20,4 +20,14 @@
     <string name="next">Next</string>
     <string name="confirm_delete_album">Are you sure you want to delete album "%s"?</string>
     <string name="album_name_exists">An album with this name already exists</string>
+    <string name="tag_type">Tag Type</string>
+    <string name="tag_already_exists">This tag already exists</string>
+    <string name="confirm_delete_tag">Are you sure you want to delete this tag?</string>
+    <string name="select_destination_album">Select Destination Album</string>
+    <string name="photo_moved_successfully">Photo moved successfully</string>
+    <string name="search">Search</string>
+    <string name="add">Add</string>
+    <string name="search_criteria">Search Criteria:</string>
+    <string name="no_photos_found">No photos found matching the criteria</string>
+    <string name="search_results">Search Results</string>
 </resources> 

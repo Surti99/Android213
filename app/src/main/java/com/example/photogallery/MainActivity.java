@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,8 +33,12 @@ public class MainActivity extends AppCompatActivity {
         albumManager = AlbumManager.getInstance(this);
         albums = albumManager.loadAlbums();
         
-        // Set up RecyclerView
+        // Initialize views
         albumsRecyclerView = findViewById(R.id.albumsRecyclerView);
+        Button createAlbumButton = findViewById(R.id.createAlbumButton);
+        Button searchButton = findViewById(R.id.searchButton);
+
+        // Set up RecyclerView
         albumsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         albumAdapter = new AlbumAdapter(albums, new AlbumAdapter.OnAlbumClickListener() {
             @Override
@@ -48,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
         });
         albumsRecyclerView.setAdapter(albumAdapter);
 
-        // Set up FAB
-        FloatingActionButton addAlbumButton = findViewById(R.id.addAlbumButton);
-        addAlbumButton.setOnClickListener(v -> showCreateAlbumDialog());
+        // Set up click listeners
+        createAlbumButton.setOnClickListener(v -> showCreateAlbumDialog());
+        searchButton.setOnClickListener(v -> startActivity(new Intent(this, SearchActivity.class)));
     }
 
     private void openAlbum(Album album) {
